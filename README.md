@@ -1,11 +1,7 @@
-# React + Vite
+# Application for supporting timtetable creation
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This app was created in React freamework. The purpose of this app is creating an optimal timetables for one institute fo university. 
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
 
 ## React Compiler
 
