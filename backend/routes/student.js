@@ -1,0 +1,121 @@
+const express = require('express');
+const router = express.Router();
+const { body, validationResult } = require('express-validator')
+const pool = require('../db');
+
+router.get('/student', async (req, res) =>{
+    try {
+        const result = await pool.query('SELECT * FROM student ORDER BY idstudent');
+        res.json(result.rows);
+    }catch (err){
+        console.error(err.message);
+        res.status(500).send('Błąd servera');
+    }
+});
+router.get('/student/:id', async (req, res) =>{
+    try{
+    const { id } = req.params;
+    const idNum = parseInt(id, 10);
+    if(isNaN(idNum)){
+        return res.status(400).json({error: 'Parametr id musi być liczbą całkowitą'})
+    }
+    const result = await pool.query('SELECT * FROM student where idstudent = $1', [idNum])
+    if (result.rows.length === 0){
+        return res.status(404).json({ message: 'Dany element nie istnieje'})
+    }
+    res.json(result.rows[0]);
+    }catch (err){
+        console.error(err.message);
+        res.status(500).send('Błąd servera');
+    }
+});
+
+router.get('/student/:id/:idt',async (req, res) =>{
+    try{
+    const { id, idt  } = req.params;
+    const idNum = parseInt(id, 10);
+    const idtNum = parseInt(idt, 10);
+     if(isNaN(idtNum || idNum)){
+            return res.status(400).json({error: 'Parametr id musi być liczbą całkowitą'})
+        }
+    const result = await pool.query('SELECT * FROM student where idstudent >= $1 and idstudent <= $2',[idNum,idtNum])
+    if (result.rows.length === 0){
+        return res.status(404).json({ message: 'W tym przedziale nie ma elementów'})
+    }
+    res.json(result.rows);
+    }catch (err){
+        console.error(err.message);
+        res.status(500).json({ error: 'Błąd serwera' });
+    }
+});
+router.post('/student', async (req, res) => {
+    try{
+        const {zajecia_id, uzytkownicy_id, imie, nazwisko, nr_albumu} = req.body
+        const result = await pool.query(
+            'INSERT INTO student (zajecia_id, uzytkownicy_id, imie, nazwisko, nr_albumu) VALUES($1,$2,$3,$4,$5)RETURNING *',
+            [
+                zajecia_id || null,
+                uzytkownicy_id || null,
+                imie || null,
+                nazwisko || null,
+                nr_albumu || null
+            ]
+        );
+        res.status(201).json(result.rows[0]);
+    }catch (err){
+        console.error(err.message);
+        if (err.constraint === 'fk_uzytkownicy' || 'fk_zajecia') {
+            return res.status(400).json({ error: 'Podany przedmiot_id nie istnieje' });
+        }
+
+        res.status(500).json({ error: 'Błąd serwera' });
+    }
+});
+router.put('/student/:id', async (req,res) =>{
+    try{
+        const { id } = req.params;
+        const idNum = parseInt(id, 10);
+        if(isNaN(idNum)){
+            return res.status(400).json({error: 'Parametr id musi być liczbą całkowitą'})
+        }
+        const {przedmiot_id, typ, czas} = req.body;
+        const check = await pool.query('SELECT * FROM student where idstudent = $1',[idNum]);
+        if(check.rows.lenght === 0) {
+            return res.status(404).json({message:'Nie znaleziono rekordu'})
+        }
+        const result = await pool.query(
+          'UPDATE student SET zajecia_id = $1, uzytkownicy_id = $2, imie = $3 , nazwisko = $4 , nr_albumu = $5 WHERE idstudent = $6'
+          [
+            zajecia_id || null,
+            uzytkownicy_id || null,
+            imie || null,
+            nazwisko || null,
+            nr_albumu || null
+          ]
+        );
+        res.status(201).json(result.rows[0]);
+        }catch(err){
+            console.error(err.message);
+            return res.status(500).json({error: 'Błąd serwera'});
+        }
+});
+router.delete('student/:id',async (req,res) =>{
+    try{
+        const { id } = req.params;
+        const idNum = parseInt(id, 10);
+        if(isNaN(idNum)){
+            return res.status(400).json({error: 'Parametr id musi być liczbą całkowitą'})
+        }
+        const check = await pool.query('SELECT * FROM student where idstudent = $1',[idNum]);
+        if(check.rows.lenght === 0) {
+            return res.status(404).json({message:'Nie znaleziono rekordu'})
+        }
+        const result = await pool.query('DELETE FROM student * WHERE idstudent = $1',[idNum]);
+        res.json({message: 'Usunięcie recordu się udało'});
+    }catch(err){
+        console.error(err.message);
+        return res.status(500).json({error: 'Błąd serwera'});
+    }
+
+});
+module.exports = router;
