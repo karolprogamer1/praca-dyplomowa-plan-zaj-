@@ -1,121 +1,89 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
 import './App.css'
+import LoginScreen from './auth/LoginScreen.jsx'
+import StudentMenu from './student/Menu.jsx'
+import LecturerMenu from './lecturer/Menu.jsx'
+import AdminMenu from './admin/Menu.jsx'
+import PlanistMenu from './planist/Menu.jsx'
+import GuestPlan from './public/GuestPlan.jsx'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [showLogin, setShowLogin] = useState(false)
+  const [user, setUser] = useState(null)
+  const [showGuestPlan, setShowGuestPlan] = useState(false)
+
+  const handleLogin = (userData) => {
+    const normalizedUser = {
+      ...userData,
+      rola: userData?.rola?.toString?.().toLowerCase?.().trim?.() || userData?.role?.toString?.().toLowerCase?.().trim?.(),
+      login: userData?.login?.toString?.().trim?.(),
+    }
+
+    setUser(normalizedUser)
+    setShowLogin(false)
+  }
+
+  const handleLogout = () => {
+    setUser(null)
+  }
+
+  const normalizedRole = user?.rola?.toString?.().toLowerCase?.().trim?.()
+  const isStudent = normalizedRole === 'student'
+  const isLecturer = normalizedRole === 'wykladowca' || normalizedRole === 'wykładowca'
+  const isPlanner = normalizedRole === 'planista'
+  const isAdmin = normalizedRole === 'administrator' || normalizedRole === 'admin'
+
+  if (isStudent) {
+    return <StudentMenu user={user} onLogout={handleLogout} />
+  }
+
+  if (isLecturer) {
+    return <LecturerMenu user={user} onLogout={handleLogout} />
+  }
+
+  if (isPlanner) {
+    return <PlanistMenu user={user} onLogout={handleLogout} />
+  }
+
+  if (isAdmin) {
+    return (
+      <AdminMenu user={user} onLogout={handleLogout} />
+    )
+  }
+
+  if (user) {
+    return (
+      <div className="main">
+        <h1>Zalogowano jako {user.login}</h1>
+        <p>Ta aplikacja obecnie obsługuje menu tylko dla roli studenta.</p>
+        <button type="button" onClick={handleLogout}>
+          Wyloguj się
+        </button>
+      </div>
+    )
+  }
+
+  if (showGuestPlan) {
+    return <GuestPlan onBack={() => setShowGuestPlan(false)} />
+  }
+
+  if (showLogin) {
+    return <LoginScreen
+      onBack={() => setShowLogin(false)}
+      onLogin={handleLogin}
+    />
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+    <div className="main">
+      <h1>Aplikacja do układania planów zajęć</h1>
+      <button type="button" onClick={() => setShowGuestPlan(true)}>
+        Zobacz podgląd planu
+      </button>
+      <button type="button" onClick={() => setShowLogin(true)}>
+        Przejdź do logowania
+      </button>
+    </div>
   )
 }
 
