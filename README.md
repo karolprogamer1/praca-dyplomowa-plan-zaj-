@@ -2,17 +2,42 @@
 
 This app creates university timetables using a database
 
-Currently, two official plugins are available:
+We created this app for engineering thesis
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Features:
+- Data can be managed from admin's panel
+- Generates timetables using data from database
+- Lecturers can submit their own preferences (avaibility hours)
+- Visitors can browse all plans
+- Planist can export plans to excel sheet
 
-## React Compiler
+## Technology used in this project
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+- React.js (frontend)
+- Node.js (backend)
+- PostgreSQL (database)
+- OR-Solver CP-SAT (AI algorithm)
+- PERN (programming stack)
 
-Note: This will impact Vite dev & build performances.
+## How to run ?
+1. Download this project
+2. Install Node.js and Vite
+3. Open this project in VSCode
+4. Open terminal and install the following dependencies:
+   - npm install exceljs
+   - npm install expressjs
+   - npm install pg
+   - npm install dotenv
+   - npm install pm2
+5. Run the backend using pm2 start backend command
+6. Run the frontend using npm run dev command
 
-## Expanding the ESLint configuration
+Note:
+You must install PostgreSQL in order to manage your database in this app
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Enjoy !!!
+
+## Authors
+
+karolprogamer1
+gimnici
