@@ -65,6 +65,6 @@ For lecturer:
 
 ## Authors
 
-karolprogamer1
+@karolprogamer1
 
-gimnici
+@giminici
