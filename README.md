@@ -2,7 +2,7 @@
 
 This app creates university timetables using a database
 
-We created this app for engineering thesis
+We created this app for engineering thesis 
 
 Features:
 - Data can be managed from admin's panel
