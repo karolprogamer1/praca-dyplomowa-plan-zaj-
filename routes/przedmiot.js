@@ -51,14 +51,23 @@ router.get('/przedmiot/:id/:idt',async (req, res) =>{
 });
 router.post('/przedmiot',  async (req, res) => {
     try{
-        const {wykladowca_id,nazwa, typ , ilosc_godz} = req.body
+        const {nazwa, ilosc_godz, semestr, tryb, wykladowca_id, specjalnosc, typ} = req.body
+        const wyklId = wykladowca_id != null && wykladowca_id !== '' ? Number(wykladowca_id) : null
+
+        if (!nazwa) {
+            return res.status(400).json({ error: 'Nazwa przedmiotu jest wymagana' });
+        }
+
         const result = await pool.query(
-            'INSERT INTO przedmiot (wykladowca_id,nazwa, typ , ilosc_godz) VALUES($1,$2,$3,$4) RETURNING *',
+            'INSERT INTO przedmiot (nazwa, ilosc_godz, semestr, tryb, wykladowca_id, specjalnosc, typ) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING *',
             [
-                wykladowca_id || null,
                 nazwa || null,
+                ilosc_godz || null,
+                semestr || null,
+                tryb || null,
+                wyklId,
+                specjalnosc || null,
                 typ || null,
-                ilosc_godz || null
             ]
         );
         res.status(201).json(result.rows[0]);
@@ -77,21 +86,26 @@ router.put('/przedmiot/:id', async (req,res) =>{
         if(isNaN(idNum)){
         return res.status(400).json({error: 'Parametr id musi być liczbą całkowitą'})
         }
-        const {wykladowca_id, nazwa, typ, ilosc_godz} = req.body;
+        const {nazwa, ilosc_godz, semestr, tryb, wykladowca_id, specjalnosc, typ} = req.body;
+        const wyklId = wykladowca_id != null && wykladowca_id !== '' ? Number(wykladowca_id) : null
         const check = await pool.query('SELECT * FROM przedmiot where idprzedmiotu= $1',[idNum]);
         if(check.rows.length === 0) {
             return res.status(404).json({message:'Nie znaleziono rekordu'})
         }
+
         const result = await pool.query(
-          'UPDATE przedmiot SET wykladowca_id = $1, nazwa = $2, typ = $3, ilosc_godz = $4 WHERE idprzedmiotu = $5 RETURNING *',
-          [
-              wykladowca_id || null,
-              nazwa || null,
-              typ || null,
-              ilosc_godz || null,
-              idNum,
-          ]
-        );
+                    'UPDATE przedmiot SET nazwa = $1, ilosc_godz = $2, semestr = $3, tryb = $4, wykladowca_id = $5, specjalnosc = $6, typ = $7 WHERE idprzedmiotu = $8 RETURNING *',
+                    [
+                            nazwa || null,
+                            ilosc_godz || null,
+                            semestr || null,
+                            tryb || null,
+                            wyklId,
+                            specjalnosc || null,
+                            typ || null,
+                            idNum
+                    ]
+                );
         res.status(200).json(result.rows[0]);
         }catch(err){
             console.error(err.message);
@@ -101,22 +115,31 @@ router.put('/przedmiot/:id', async (req,res) =>{
             return res.status(500).json({error: 'Błąd serwera'});
         }
 });
+
 router.delete('/przedmiot/:id',async (req,res) =>{
+    const client = await pool.connect();
     try{
         const { id } = req.params;
         const idNum = parseInt(id, 10);
         if(isNaN(idNum)){
         return res.status(400).json({error: 'Parametr id musi być liczbą całkowitą'})
         }
-        const check = await pool.query('SELECT * FROM przedmiot where idprzedmiotu = $1',[idNum]);
+        await client.query('BEGIN');
+        const check = await client.query('SELECT * FROM przedmiot where idprzedmiotu = $1',[idNum]);
         if(check.rows.length === 0) {
+            await client.query('ROLLBACK');
             return res.status(404).json({message:'Nie znaleziono rekordu'})
         }
-        await pool.query('DELETE FROM przedmiot WHERE idprzedmiotu = $1',[idNum]);
+        await client.query('DELETE FROM zajecia WHERE przedmiot_id = $1',[idNum]);
+        await client.query('DELETE FROM przedmiot WHERE idprzedmiotu = $1',[idNum]);
+        await client.query('COMMIT');
         res.json({message: 'Usunięcie recordu się udało'});
     }catch(err){
+        await client.query('ROLLBACK');
         console.error(err.message);
         return res.status(500).json({error: 'Błąd serwera'});
+    } finally {
+        client.release();
     }
 
 });

@@ -1,5 +1,7 @@
 const { Pool } = require('pg')
-require('dotenv').config();
+const path = require('path')
+require('dotenv').config({ path: path.join(__dirname, '.env') });
+
 
 const requiredEnv = ['DB_USER', 'DB_PASSWORD', 'DB_HOST', 'DB_PORT', 'DB_DATABASE']
 const missingEnv = requiredEnv.filter((name) => !process.env[name])
@@ -17,3 +19,4 @@ const pool = new Pool({
 });
 
 module.exports = pool;
+

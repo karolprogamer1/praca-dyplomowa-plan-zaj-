@@ -9,12 +9,26 @@ const pool = new Pool({
 });
 (async () => {
   try {
-    const students = await pool.query('SELECT s.idstudent, s.nr_albumu, s.uzytkownicy_id, u.login FROM student s LEFT JOIN uzytkownicy u ON s.uzytkownicy_id = u.id ORDER BY s.idstudent');
-    console.log('STUDENTS');
-    console.log(JSON.stringify(students.rows, null, 2));
-    const users = await pool.query('SELECT * FROM uzytkownicy ORDER BY id');
-    console.log('USERS');
-    console.log(JSON.stringify(users.rows, null, 2));
+    // Znajdź studentów z zajecia_id ale bez rekordu w tabeli grupa
+    const orphans = await pool.query(`
+      SELECT s.idstudent, s.nr_albumu, s.zajecia_id
+      FROM student s
+      LEFT JOIN grupa g ON s.idstudent = g.student_id
+      WHERE s.zajecia_id IS NOT NULL AND g.id_grupa IS NULL
+    `);
+    console.log(`Znaleziono ${orphans.rows.length} studentów z zajecia_id ale bez rekordu w tabeli grupa:`);
+    console.table(orphans.rows);
+
+    if (orphans.rows.length > 0) {
+      const ids = orphans.rows.map(r => r.idstudent);
+      const result = await pool.query(
+        'UPDATE student SET zajecia_id = NULL WHERE idstudent = ANY($1::int[])',
+        [ids]
+      );
+      console.log(`\nWyczyszczono zajecia_id dla ${result.rowCount} studentów.`);
+    } else {
+      console.log('Brak osieroconych rekordów — baza jest spójna.');
+    }
   } catch (err) {
     console.error(err);
   } finally {

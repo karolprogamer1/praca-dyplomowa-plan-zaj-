@@ -36,10 +36,10 @@ router.get('/uzytkownicy/:id/:idt',async (req, res) =>{
     const { id, idt  } = req.params;
      const idNum = parseInt(id, 10);
     const idtNum = parseInt(idt, 10);
-     if(isNaN(idtNum || idNum)){
+     if(isNaN(idNum) || isNaN(idtNum)){
             return res.status(400).json({error: 'Parametr id lub idt musi być liczbą całkowitą'})
     }
-    const result = await pool.query('SELECT * FROM uzytkownicy id >= $1 and id <= $2',[idNum,idtNum])
+    const result = await pool.query('SELECT * FROM uzytkownicy WHERE id >= $1 AND id <= $2',[idNum,idtNum])
     if (result.rows.length === 0){
         return res.status(404).json({ message: 'W tym przedziale nie ma elementów'})
     }
