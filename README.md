@@ -37,6 +37,24 @@ You must install PostgreSQL in order to manage your database in this app
 
 Enjoy !!!
 
+## Authorization
+
+For administator:
+login: admin
+password: admin
+
+For planist  
+login: planist  
+password: planist
+
+For student:
+login: numer albumu
+password: student
+
+For lecturer:
+login: pierwsza_litera_imienia.nazwisko
+password: wykladowca
+
 ## Authors
 
 karolprogamer1
