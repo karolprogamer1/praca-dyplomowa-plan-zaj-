@@ -41,27 +41,27 @@ Enjoy !!!
 
 For administator:
 
-login: admin
+- login: admin
 
-password: admin
+- password: admin
 
 For planist  
 
-login: planist  
+- login: planist  
 
-password: planist
+- password: planist
 
 For student:
 
-login: numer albumu
+- login: numer albumu
 
-password: student
+- password: student
 
 For lecturer:
 
-login: pierwsza_litera_imienia.nazwisko
+- login: pierwsza_litera_imienia.nazwisko
 
-password: wykladowca
+- password: wykladowca
 
 ## Authors
 
